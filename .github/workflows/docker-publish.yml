@@ -39,6 +39,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set lowercase repo name
+        run: echo "REPO_NAME=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
       - name: Log in to GHCR
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
@@ -51,7 +54,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ github.repository }}${{ matrix.package.image_suffix }}
+          images: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}${{ matrix.package.image_suffix }}
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}
@@ -67,7 +70,7 @@ jobs:
         with:
           context: ${{ matrix.package.context }}
           platforms: ${{ matrix.arch.platform }}
-          outputs: type=image,name=${{ env.REGISTRY }}/${{ github.repository }}${{ matrix.package.image_suffix }},push-by-digest=true,name-canonical=true,push=${{ github.event_name != 'pull_request' }}
+          outputs: type=image,name=${{ env.REGISTRY }}/${{ env.REPO_NAME }}${{ matrix.package.image_suffix }},push-by-digest=true,name-canonical=true,push=${{ github.event_name != 'pull_request' }}
           cache-from: type=gha,scope=${{ matrix.package.name }}-${{ matrix.arch.name }}
           cache-to: type=gha,scope=${{ matrix.package.name }}-${{ matrix.arch.name }},mode=max
 
@@ -104,6 +107,9 @@ jobs:
             image_suffix: -web
 
     steps:
+      - name: Set lowercase repo name
+        run: echo "REPO_NAME=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
       - name: Download digests
         uses: actions/download-artifact@v4
         with:
@@ -122,7 +128,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ github.repository }}${{ matrix.image_suffix }}
+          images: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}${{ matrix.image_suffix }}
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}
@@ -136,8 +142,8 @@ jobs:
         working-directory: /tmp/digests/${{ matrix.package }}
         run: |
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf '${{ env.REGISTRY }}/${{ github.repository }}${{ matrix.image_suffix }}@sha256:%s ' *)
+            $(printf '${{ env.REGISTRY }}/${{ env.REPO_NAME }}${{ matrix.image_suffix }}@sha256:%s ' *)
 
       - name: Inspect image
         run: |
-          docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ github.repository }}${{ matrix.image_suffix }}:${{ steps.meta.outputs.version }}
+          docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.REPO_NAME }}${{ matrix.image_suffix }}:${{ steps.meta.outputs.version }}
