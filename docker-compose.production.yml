@@ -1,6 +1,6 @@
 services:
   server:
-    image: ghcr.io/OWNER/cloakmail-server:latest
+    image: ghcr.io/dreamshive/cloakmail-server:latest
     ports:
       - "25:25"
       - "3000:3000"
@@ -15,7 +15,7 @@ services:
     restart: unless-stopped
 
   web:
-    image: ghcr.io/OWNER/cloakmail-web:latest
+    image: ghcr.io/dreamshive/cloakmail-web:latest
     ports:
       - "5173:5173"
     environment:
