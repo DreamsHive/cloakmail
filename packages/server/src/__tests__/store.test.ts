@@ -17,6 +17,7 @@ const {
 	getEmail,
 	deleteInbox,
 	deleteEmail,
+	isRedisHealthy,
 } = redisAvailable
 	? await import("../store")
 	: ({} as any);
