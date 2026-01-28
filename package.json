@@ -1,0 +1,5 @@
+{
+  "name": "cloakmail",
+  "private": true,
+  "workspaces": ["packages/*"]
+}

@@ -1,0 +1,35 @@
+services:
+  server:
+    image: ghcr.io/OWNER/cloakmail-server:latest
+    ports:
+      - "25:25"
+      - "3000:3000"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - SMTP_PORT=25
+      - API_PORT=3000
+      - EMAIL_TTL_SECONDS=86400
+      - DOMAIN=${DOMAIN:-localhost}
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  web:
+    image: ghcr.io/OWNER/cloakmail-web:latest
+    ports:
+      - "5173:5173"
+    environment:
+      - PUBLIC_API_URL=http://server:3000
+      - PORT=5173
+    depends_on:
+      - server
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  redis_data:

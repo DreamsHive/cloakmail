@@ -1,0 +1,39 @@
+services:
+  server:
+    build:
+      context: ./packages/server
+    ports:
+      - "25:25"
+      - "3000:3000"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - SMTP_PORT=25
+      - API_PORT=3000
+      - EMAIL_TTL_SECONDS=86400
+      - DOMAIN=${DOMAIN:-localhost}
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./packages/web
+    ports:
+      - "5173:5173"
+    environment:
+      - PUBLIC_API_URL=http://server:3000
+      - PUBLIC_APP_NAME=${APP_NAME:-CloakMail}
+      - PUBLIC_EMAIL_DOMAIN=${DOMAIN:-localhost}
+      - PORT=5173
+    depends_on:
+      - server
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  redis_data:

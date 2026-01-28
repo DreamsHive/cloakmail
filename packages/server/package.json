@@ -1,0 +1,22 @@
+{
+  "name": "@cloakmail/server",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run src/index.ts",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "elysia": "^1.2",
+    "@elysiajs/swagger": "^1.2",
+    "smtp-server": "^3.13.0",
+    "mailparser": "^3.7.2"
+  },
+  "devDependencies": {
+    "@types/smtp-server": "^3.5.10",
+    "@types/mailparser": "^3.4.5",
+    "bun-types": "^1.3.0",
+    "typescript": "^5.7"
+  }
+}

@@ -1,0 +1,32 @@
+{
+	"name": "@cloakmail/web",
+	"private": true,
+	"version": "1.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"prepare": "svelte-kit sync || echo ''",
+		"generate:api": "openapi-typescript http://localhost:3000/swagger/json -o src/lib/types/api.d.ts",
+		"test": "vitest run",
+		"test:watch": "vitest"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-node": "^5.5.0",
+		"@sveltejs/kit": "^2.50.1",
+		"@sveltejs/vite-plugin-svelte": "^6.2.4",
+		"@tailwindcss/vite": "^4",
+		"openapi-typescript": "^7.10.1",
+		"svelte": "^5.48.2",
+		"svelte-check": "^4.3.5",
+		"tailwindcss": "^4",
+		"typescript": "^5.9.3",
+		"vite": "^7.3.1",
+		"vitest": "^4.0.18"
+	},
+	"dependencies": {
+		"@iconify/svelte": "^5.2.1",
+		"openapi-fetch": "^0.15.0"
+	}
+}
