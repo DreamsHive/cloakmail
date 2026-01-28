@@ -25,9 +25,9 @@
 			</a>
 		{/if}
 		<a
-			href="https://github.com"
+			href="https://github.com/DreamsHive/cloakmail"
 			target="_blank"
-			rel="noopener noreferrer"
+			rel="dofollow"
 			class="flex items-center gap-2 px-6 py-3 bg-white neo-border neo-shadow-sm text-sm font-bold hover:bg-yellow-400 transition-colors neo-button text-black"
 		>
 			<Icon icon="lucide:github" class="text-xl" />
