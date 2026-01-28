@@ -18,7 +18,7 @@
 
 <p align="center">
   <a href="https://github.com/DreamsHive/cloakmail/actions/workflows/ci.yml"><img src="https://github.com/DreamsHive/cloakmail/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-  <a href="https://github.com/DreamsHive/cloakmail/actions/workflows/release.yml"><img src="https://github.com/DreamsHive/cloakmail/actions/workflows/release.yml/badge.svg" alt="Release" /></a>
+  <a href="https://github.com/DreamsHive/cloakmail/releases/latest"><img src="https://img.shields.io/github/v/release/DreamsHive/cloakmail" alt="Release" /></a>
   <a href="https://github.com/DreamsHive/cloakmail/pkgs/container/cloakmail"><img src="https://img.shields.io/badge/ghcr.io-cloakmail-blue?logo=docker" alt="GHCR" /></a>
   <a href="https://github.com/DreamsHive/cloakmail/blob/main/LICENSE"><img src="https://img.shields.io/github/license/DreamsHive/cloakmail" alt="License" /></a>
   <a href="https://github.com/DreamsHive/cloakmail/stargazers"><img src="https://img.shields.io/github/stars/DreamsHive/cloakmail?style=social" alt="Stars" /></a>
