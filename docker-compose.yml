@@ -21,7 +21,7 @@ services:
     ports:
       - "5173:5173"
     environment:
-      - PUBLIC_API_URL=http://server:3000
+      - PUBLIC_API_URL=${API_URL:-http://server:3000}
       - PUBLIC_APP_NAME=${APP_NAME:-CloakMail}
       - PUBLIC_EMAIL_DOMAIN=${DOMAIN:-localhost}
       - PORT=5173
