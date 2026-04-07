@@ -1,0 +1,5 @@
+# Local dev secrets template for `wrangler dev --local`.
+# Copy to .dev.vars (gitignored) and adjust as needed.
+DOMAIN="localhost"
+EMAIL_TTL_SECONDS="86400"
+MAX_EMAIL_SIZE_MB="10"

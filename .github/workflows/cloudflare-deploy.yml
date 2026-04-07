@@ -1,0 +1,90 @@
+name: Cloudflare Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/cloudflare/**'
+      - 'packages/web/**'
+      - '.github/workflows/cloudflare-deploy.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'packages/cloudflare/**'
+      - 'packages/web/**'
+      - '.github/workflows/cloudflare-deploy.yml'
+  workflow_dispatch:
+
+jobs:
+  test-cloudflare:
+    name: Test Cloudflare Worker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: cd packages/cloudflare && bun install
+
+      - name: Run vitest
+        run: cd packages/cloudflare && bun run test
+
+  deploy-api:
+    name: Deploy API Worker
+    needs: test-cloudflare
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: cd packages/cloudflare && bun install
+
+      - name: Apply D1 migrations
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: packages/cloudflare
+          command: d1 migrations apply DB --remote
+
+      - name: Deploy API Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: packages/cloudflare
+          command: deploy
+
+  deploy-web:
+    name: Deploy Web Worker
+    needs: deploy-api
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: cd packages/web && bun install
+
+      - name: Build SvelteKit (cloudflare adapter)
+        run: cd packages/web && bun run build:cloudflare
+
+      - name: Deploy Web Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: packages/web
+          command: deploy

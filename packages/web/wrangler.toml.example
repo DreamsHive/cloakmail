@@ -1,0 +1,21 @@
+# packages/web/wrangler.toml.example
+# Static fallback for the Cloudflare Deploy Button. Copy to wrangler.toml,
+# adjust the worker / service names, then run `wrangler deploy`.
+# The recommended path is `bunx cloakmail-cli setup`, which renders
+# wrangler.toml from wrangler.toml.template instead.
+name = "cloakmail-web"
+main = ".svelte-kit/cloudflare/_worker.js"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = ".svelte-kit/cloudflare"
+binding = "ASSETS"
+
+[vars]
+PUBLIC_APP_NAME = "CloakMail"
+PUBLIC_EMAIL_DOMAIN = "example.com"
+
+[[services]]
+binding = "API"
+service = "cloakmail-api"
