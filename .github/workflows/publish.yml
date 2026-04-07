@@ -1,0 +1,163 @@
+name: Publish
+
+# Triggered by pushing a `v*` tag (e.g. `v1.1.0`) or manually via the
+# Actions UI. Re-runs the full test suite as a safety net, then publishes
+# every workspace package whose `package.json` is NOT marked `"private": true`.
+# Currently all packages are private — flip the flag on the ones you want
+# released and the next tag will pick them up automatically.
+#
+# Modeled after the seedcli publish workflow:
+# https://github.com/DreamsHive/seedcli/blob/main/.github/workflows/publish.yml
+
+on:
+  push:
+    tags:
+      - "v[0-9]*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Git tag to publish (e.g. v1.1.0)"
+        required: true
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+
+    # The server package's tests need a real Redis instance, same as the
+    # main `ci.yml` workflow. We re-run them here so a tag pointing at an
+    # untested commit can never accidentally ship.
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Server tests
+        working-directory: packages/server
+        run: |
+          bun install
+          bun test
+        env:
+          REDIS_URL: redis://localhost:6379
+
+      - name: Web tests + build
+        working-directory: packages/web
+        run: |
+          bun install
+          bun run test
+          bun run build
+
+      - name: Cloudflare tests
+        working-directory: packages/cloudflare
+        run: |
+          bun install
+          bun run test
+
+  publish:
+    name: Publish to npm
+    needs: ci
+    runs-on: ubuntu-latest
+
+    # `id-token: write` is required for npm provenance attestation.
+    # `contents: write` is required for the GitHub Release step at the bottom.
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      # We use `bun install` for speed but `npm publish` for the actual
+      # release because npm CLI is the only client that supports the
+      # `--provenance` flag against the public registry today.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install workspace dependencies
+        run: bun install
+
+      - name: Publish non-private packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+          published=0
+          skipped=0
+          failed=0
+
+          for pkg_dir in packages/*/; do
+            pkg_json="${pkg_dir}package.json"
+            [ -f "$pkg_json" ] || continue
+
+            name=$(node -p "require('./${pkg_json}').name")
+            version=$(node -p "require('./${pkg_json}').version")
+            is_private=$(node -p "require('./${pkg_json}').private === true")
+
+            if [ "$is_private" = "true" ]; then
+              echo "  → $name@$version (private, skipped)"
+              skipped=$((skipped + 1))
+              continue
+            fi
+
+            # Idempotency: skip if this exact version is already on npm.
+            # Without this, retriggering the workflow would 403 on the
+            # second run because npm refuses to overwrite existing versions.
+            if npm view "$name@$version" version >/dev/null 2>&1; then
+              echo "  → $name@$version (already published, skipped)"
+              skipped=$((skipped + 1))
+              continue
+            fi
+
+            echo "  → Publishing $name@$version..."
+            if (cd "$pkg_dir" && npm publish --access public --provenance); then
+              published=$((published + 1))
+            else
+              echo "    FAILED"
+              failed=$((failed + 1))
+            fi
+          done
+
+          echo ""
+          echo "Published: $published"
+          echo "Skipped:   $skipped"
+          echo "Failed:    $failed"
+
+          if [ "$failed" -gt 0 ]; then
+            exit 1
+          fi
+
+      # Auto-generated release notes from merged PRs since the previous tag.
+      # Skipped on manual workflow_dispatch runs because there's no implicit
+      # tag context to anchor the notes against.
+      - name: Create GitHub Release
+        if: ${{ !inputs.tag }}
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true

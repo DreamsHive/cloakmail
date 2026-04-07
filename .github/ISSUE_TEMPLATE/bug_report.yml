@@ -1,0 +1,93 @@
+name: Bug report
+description: Report a problem with CloakMail
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report! Please fill out the
+        sections below so we can reproduce and fix the issue quickly.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of what went wrong.
+      placeholder: When I send an email to my disposable address, it never appears in the inbox UI.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+      placeholder: The email should appear in the inbox within a few seconds.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Minimal steps to reproduce the behavior.
+      placeholder: |
+        1. Run `docker compose up -d`
+        2. Generate an inbox at https://example.com
+        3. Send an email to <generated-address>@example.com
+        4. Refresh the inbox — nothing appears
+    validations:
+      required: true
+
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: Deployment path
+      description: Which CloakMail deployment are you running?
+      options:
+        - Docker / VPS (`packages/server`)
+        - Cloudflare Workers (`packages/cloudflare` via `cloakmail-cli`)
+        - Local dev (`bun run dev` in a package)
+        - Other (describe below)
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: CloakMail version
+      description: Either the git tag, the GHCR image tag, or the cloakmail-cli output.
+      placeholder: v1.1.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: |
+        Anything relevant about your setup:
+        - OS + version
+        - Bun version (`bun --version`)
+        - Docker version (`docker --version`) if applicable
+        - Browser if it's a UI bug
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Server logs, browser console errors, or `wrangler tail` output. Paste relevant lines only.
+      render: shell
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](../blob/main/CODE_OF_CONDUCT.md).
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true

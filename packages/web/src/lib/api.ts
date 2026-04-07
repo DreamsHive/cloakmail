@@ -2,7 +2,7 @@ import createClient from 'openapi-fetch';
 import type { paths } from '$lib/types/api.d';
 import { env } from '$env/dynamic/public';
 
-const BASE_URL = env.PUBLIC_API_URL || 'http://localhost:3000';
+const BASE_URL = env.PUBLIC_API_URL ?? (typeof window !== 'undefined' ? '' : 'http://localhost:3000');
 
 export function createApiClient(customFetch?: typeof fetch) {
 	return createClient<paths>({

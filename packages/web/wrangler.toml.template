@@ -1,0 +1,20 @@
+# packages/web/wrangler.toml.template
+# Rendered to wrangler.toml by cloakmail-cli setup. Do not edit the rendered file.
+name = "{{WEB_WORKER_NAME}}"
+main = ".svelte-kit/cloudflare/_worker.js"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = ".svelte-kit/cloudflare"
+binding = "ASSETS"
+
+[vars]
+PUBLIC_APP_NAME = "{{APP_NAME}}"
+PUBLIC_EMAIL_DOMAIN = "{{DOMAIN}}"
+# PUBLIC_API_URL omitted on purpose: client-side fetches use same-origin /api/*
+# which the hooks.server.ts proxy forwards to the API Worker via service binding.
+
+[[services]]
+binding = "API"
+service = "{{API_WORKER_NAME}}"
