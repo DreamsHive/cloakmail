@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://docs.cloakmail.dev
+    about: Setup guides, API reference, deployment instructions
+  - name: GitHub Discussions
+    url: https://github.com/DreamsHive/cloakmail/discussions
+    about: Ask questions, share ideas, or talk to other users
+  - name: Security vulnerabilities
+    url: mailto:rully@dreamshive.io
+    about: Please email security issues privately instead of opening a public issue

@@ -1,0 +1,27 @@
+# packages/cloudflare/wrangler.toml.template
+# Rendered to wrangler.toml by cloakmail-cli setup. Do not edit the rendered file.
+name = "{{API_WORKER_NAME}}"
+main = "src/worker.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[triggers]
+crons = ["0 3 * * *"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "{{D1_NAME}}"
+database_id = "{{D1_ID}}"
+migrations_dir = "migrations"
+
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "{{R2_NAME}}"
+
+[vars]
+DOMAIN = "{{DOMAIN}}"
+EMAIL_TTL_SECONDS = "{{EMAIL_TTL_SECONDS}}"
+MAX_EMAIL_SIZE_MB = "{{MAX_EMAIL_SIZE_MB}}"
+
+[observability]
+enabled = true

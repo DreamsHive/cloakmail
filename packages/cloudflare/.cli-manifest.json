@@ -1,0 +1,10 @@
+{
+  "cloakmail_version": "1.1.0",
+  "min_cli_version": "0.1.0",
+  "templates": {
+    "api_wrangler_toml": "packages/cloudflare/wrangler.toml.template",
+    "web_wrangler_toml": "packages/web/wrangler.toml.template"
+  },
+  "migrations": "packages/cloudflare/migrations",
+  "deployable_packages": ["packages/cloudflare", "packages/web"]
+}

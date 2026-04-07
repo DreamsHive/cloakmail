@@ -6,7 +6,9 @@ node_modules
 .netlify
 .wrangler
 /.svelte-kit
+/.svelte-kit/cloudflare/
 /build
+wrangler.toml
 
 # OS
 .DS_Store

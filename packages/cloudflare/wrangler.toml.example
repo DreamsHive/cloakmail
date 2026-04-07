@@ -1,0 +1,30 @@
+# packages/cloudflare/wrangler.toml.example
+# Static fallback for the Cloudflare Deploy Button. Copy to wrangler.toml,
+# replace D1 database_id with the value emitted by `wrangler d1 create`,
+# then run `wrangler deploy`. The recommended path is `bunx cloakmail-cli setup`,
+# which renders wrangler.toml from wrangler.toml.template instead.
+name = "cloakmail-api"
+main = "src/worker.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[triggers]
+crons = ["0 3 * * *"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "cloakmail"
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "migrations"
+
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "cloakmail-bodies"
+
+[vars]
+DOMAIN = "example.com"
+EMAIL_TTL_SECONDS = "86400"
+MAX_EMAIL_SIZE_MB = "10"
+
+[observability]
+enabled = true
