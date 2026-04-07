@@ -36,8 +36,18 @@
 - **REST API** — fully documented OpenAPI spec with typed endpoints
 - **Web UI** — Accessible web interface built with SvelteKit and Tailwind CSS
 - **Docker-ready** — single `docker compose up` to run the entire stack
+- **Serverless on Cloudflare** — deploy to Workers + D1 + R2 + Email Routing on the free tier with a single command, no servers to manage
 
 ## Quick Start
+
+CloakMail ships with two deployment paths. Pick the one that fits your situation:
+
+| Deployment | Good for | Cost |
+|---|---|---|
+| **Docker / VPS** | Full control, self-hosted servers, on-prem | Your server costs |
+| **Cloudflare Workers** | Zero servers to manage, global edge, free tier | $0 on the free tier (up to ~100k emails/day) |
+
+### Option 1 — Docker / VPS
 
 Pull and run directly from GitHub Container Registry:
 
@@ -61,7 +71,7 @@ docker pull ghcr.io/dreamshive/cloakmail-web:latest
 
 The web UI will be available at `http://localhost:5173` and the API at `http://localhost:3000`.
 
-### Environment Variables
+#### Environment Variables
 
 | Variable | Default | Description |
 |---|---|---|
@@ -70,8 +80,34 @@ The web UI will be available at `http://localhost:5173` and the API at `http://l
 | `EMAIL_TTL_SECONDS` | `86400` | Time before emails auto-delete |
 | `SMTP_PORT` | `25` | SMTP server port |
 | `API_PORT` | `3000` | REST API port |
+| `API_URL` | `http://server:3000` | Overrides `PUBLIC_API_URL` for the web container — useful for split deployments or reverse-proxy setups |
 
 See [.env.example](.env.example) for all available options.
+
+### Option 2 — Cloudflare Workers
+
+Run CloakMail entirely on Cloudflare's free tier — no servers, no Docker, no `ssh`. One command from any directory on your machine:
+
+```bash
+bunx cloakmail-cli setup
+```
+
+The [`cloakmail-cli`](https://github.com/DreamsHive/cloakmail-cli) wizard handles the entire deployment end-to-end: it fetches this repo's release tarball, prompts for your Cloudflare API token + domain + hostname, provisions D1 and R2, deploys both Workers, configures Email Routing, binds your custom domain, and verifies the whole thing — in about two minutes.
+
+**Prerequisites:**
+
+- A Cloudflare account (free tier is fine)
+- A domain already added to Cloudflare DNS
+- [Bun](https://bun.sh/) installed locally (for `bunx`)
+
+**What you get:**
+
+- A web UI at whatever hostname you pick (e.g. `https://inbox.yourdomain.com`)
+- Catch-all email routing on your domain — any address `*@yourdomain.com` lands in a disposable inbox
+- Automatic TLS via Cloudflare
+- ~100k emails/day on the free tier (D1 + R2 smart-split storage)
+
+The Docker and Cloudflare paths are fully independent — pick whichever fits your setup, or even run both for different domains.
 
 ## Documentation
 
