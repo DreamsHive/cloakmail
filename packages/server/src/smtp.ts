@@ -47,6 +47,14 @@ export function startSMTP(port = config.smtpPort): SMTPServer {
     },
   });
 
+  server.on("error", (err: NodeJS.ErrnoException) => {
+    // smtp-server can attempt its idle-timeout response after the remote
+    // peer has closed the socket. Bun reports that race as ERR_SOCKET_CLOSED.
+    if (err.code === "ERR_SOCKET_CLOSED") return;
+
+    console.error("[smtp] Server error:", err);
+  });
+
   server.listen(port, () => {
     console.log(`[smtp] Listening on port ${port}`);
   });
